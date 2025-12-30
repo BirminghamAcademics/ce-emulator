@@ -14,3 +14,5 @@ CORE_GB:
 
 CORE_SMS:
 	$(CC) cores.c -DCORE_ID=3 -o CORE_SMS.8xv
+CORE_GG:
+	$(CC) cores.c -DCORE_ID=4 -o CORE_GG.8xv
