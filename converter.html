@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Chronos Converter</title>
+<style>
+body{background:#000;color:#0f0;font-family:monospace}
+</style>
+</head>
+<body>
+
+<h3>Chronos ROM → .8xv</h3>
+<input type="file" id="rom">
+<button onclick="go()">Convert</button>
+
+<script>
+function core(d){
+  if(d[0]==0x4E&&d[1]==0x45&&d[2]==0x53) return 0x08;
+  if(d[0x104]==0xCE&&d[0x105]==0xED) return 0x01;
+  return 0x03;
+}
+
+function go(){
+  const f=document.getElementById("rom").files[0];
+  const r=new FileReader();
+  r.onload=()=>{
+    const rom=new Uint8Array(r.result);
+    const h=new Uint8Array(64);
+    h.set(new TextEncoder().encode("CHRONOS\0"));
+    h[8]=core(rom);
+    h[9]=rom.length&255;
+    h[10]=rom.length>>8;
+
+    const out=new Uint8Array(64+rom.length);
+    out.set(h); out.set(rom,64);
+
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([out]));
+    a.download="GAME.8xv";
+    a.click();
+  };
+  r.readAsArrayBuffer(f);
+}
+</script>
+</body>
+</html>
