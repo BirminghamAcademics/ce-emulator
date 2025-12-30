@@ -1,42 +1,26 @@
 <!DOCTYPE html>
 <html>
 <meta charset="utf-8">
-<title>Chronos Converter</title>
 <body style="background:#000;color:#0f0;font-family:monospace">
-
 <input type=file id=f>
 <button onclick=go()>Convert</button>
-
 <script>
-// ---- CORE DETECTION ----
 function core(d){
-  if(d[0]==0x4E&&d[1]==0x45&&d[2]==0x53) return 0x08;
-  if(d[0x104]==0xCE&&d[0x105]==0xED) return 0x01;
-  return 0x03;
+  if(d[0]==0x4E&&d[1]==0x45&&d[2]==0x53)return 8;
+  if(d[0x104]==0xCE&&d[0x105]==0xED)return 1;
+  return 3;
 }
-
-// ---- ZX7 (FAST, SMALL) ----
-function zx7(data){
-  // minimal placeholder compressor (no-op but valid)
-  return data;
-}
-
 function go(){
   const r=new FileReader();
   r.onload=()=>{
-    const rom=new Uint8Array(r.result);
+    const d=new Uint8Array(r.result);
     const h=new Uint8Array(64);
     h.set(new TextEncoder().encode("CHRONOS\0"));
-    h[8]=core(rom);
-    h[9]=rom.length&255;
-    h[10]=rom.length>>8;
-
-    const comp=zx7(rom);
-    const out=new Uint8Array(64+comp.length);
-    out.set(h); out.set(comp,64);
-
+    h[8]=core(d);
+    const o=new Uint8Array(64+d.length);
+    o.set(h);o.set(d,64);
     const a=document.createElement("a");
-    a.href=URL.createObjectURL(new Blob([out]));
+    a.href=URL.createObjectURL(new Blob([o]));
     a.download="GAME.8xv";
     a.click();
   };
